@@ -11,18 +11,6 @@ x_data, y_data = [], []
 line, = ax.plot([], [], lw=2)
 ax.set_xlim(0, 25)
 ax.set_ylim(-1.1, 1.1)
-command = 0 
-attenuation_coupling = (False,False,False,False) #length corresponds to double number of channels, index 0,1 correspond to attenuation Control, 2 and 3 to coupling control
-command = 0
-
-def definecommand(): #we will use a 1 byte variable to communicate commands to the arduino, the only things that need communicated are attenuation and coupling so 32 total possible states, 2 bits needed to define state for each channel.
-    global attenuation_coupling
-    global command
-    command<<1 
-    for i in attenuation_coupling:
-        if attenuation_coupling[-(i+1)]:
-            command+=1   
-    
 
 def init():
     line.set_data([], [])
@@ -37,8 +25,6 @@ def update(frame):
     else: 
         y_data.append(0)
     line.set_data(x_data, y_data)
-    arduino.write(definecommand)
-    print(arduino.readline())
     t+=1
     return line
 

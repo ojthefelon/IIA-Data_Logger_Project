@@ -3,7 +3,6 @@
 unsigned long last_transmission = 0;
 unsigned long transmission_interval = 20;
 byte incoming_command = 0;
-byte read; 
 
 void setup() {
   Serial.begin(115200);
@@ -15,10 +14,6 @@ void loop() {
   if (now - last_transmission > transmission_interval){
     last_transmission=now;
     Serial.println(sin(now*M_PI/500));
-  }
-  read=Serial.read();
-  if (read){
-    Serial.println("Tranmission Successful");
   }
 
 

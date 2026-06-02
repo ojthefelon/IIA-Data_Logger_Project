@@ -5,14 +5,15 @@ import math
 import numpy as np 
 from serial.tools import list_ports
 import time
-import tkinter as tk
+import interface 
+
+print("hello world")
 #define variables to use within the circuit
 updateperiod=0.02 #this should be equal to transmission interval on the arduino
 voltages=[] #start with an empty list of voltage values
 timevals=[] #start with an empty list of time values
-domain='time' #define default domain as time domain
-t=0 #time variable to be updated each cycle to make calculations shorter, other methods can be used in most cases but will be slower
 
+t=0 #time variable to be updated each cycle to make calculations shorter, other methods can be used in most cases but will be slower
 
 #only windows compatible currently firstly we just want to setup our connection with the arduino over serial
 devices=list_ports.comports()
@@ -26,19 +27,17 @@ arduino = serial.Serial(devices[index].device, 115200, timeout=1)
 starttime=time.time()
 lastupdatetime=0
 
+
+
 #create UI using TKinter
-UI=tk.Tk()
-UI.title("Oscilloscope")
-UI.geometry("400x500")
-add_button = tk.Button(UI, text="Switch Domain", width=20, font=("Arial", 10))
-add_button.pack(pady=5)
-UI.mainloop()
+interface.make()
+
 
 #define functions for loop later
+#store all the voltage data so that mathematical manipulations. i.e. Fourier transforms can be performed
 def updatedata():
     voltages.append(arduino.readline().decode().strip())
     timevals.append(t*updateperiod)
-
 
 #Use a while loop to get time passed and when enough time has passed get an update.
 while True:
@@ -48,4 +47,6 @@ while True:
         lastupdatetime=now
         updatedata()
         t=+1
+        print(interface.N_frames)
+        print("sample taken")
 
