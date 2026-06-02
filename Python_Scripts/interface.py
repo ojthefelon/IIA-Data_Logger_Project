@@ -47,14 +47,20 @@ def switch_coupling(i):
         coupling[i] = "DC"
     coupling_labels[i].config(text = "Channel " + str(i+1) + " coupling, currently " + coupling[i])
 
-#This function below does not yet work properly.
-def change_frames(event):
-    global N_frames
-    global Frames_label
-    global Frames_entry
-    N_frames = Frames_entry.get()
-    Frames_label.config(text = "Change number of samples, currently: " + N_frames)
+#Redundant Function as we are now closing window, if window remains open this becomes useful again
+# def change_frames(event):
+#     global N_frames
+#     global Frames_label
+#     global Frames_entry
+#     N_frames = Frames_entry.get()
+#     Frames_label.config(text = "Change number of samples, currently " + N_frames)
 
+
+def close_window():
+    global N_frames
+    N_frames = Frames_entry.get()
+    global UI
+    UI.destroy()
 
 
 def make():
@@ -99,12 +105,14 @@ def make():
 
 
     #Use buttons to adjust number of samples as labels was too complicated
-    Frames_label = tk.Label(UI, text= "Change number of samples, currently: 0")
+    Frames_label = tk.Label(UI, text= "Set number of samples")
     Frames_label.pack()
-    Frames_entry.bind("<Return>", change_frames)
-    Frames_entry.pack()    
+    Frames_entry.pack()   
+
+
+    Kill_button = tk.Button(UI, text= "Begin taking samples", command = close_window)
+    Kill_button.pack()
 
     UI.mainloop()
 
-make()
 
