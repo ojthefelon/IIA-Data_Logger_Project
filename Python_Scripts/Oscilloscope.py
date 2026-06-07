@@ -9,7 +9,7 @@ import Serialsetup
 import serial
 
 #define variables to use within the circuit
-dataperiod=1/200000
+dataperiod=1/200000#change this according to sample frequency, this is used for axes and FFT frequencies so will affect those.
 voltages1=[] #start with an empty list of voltage values
 voltages2=[] #start with an empty list of voltage values (maybe make into 2d list later proportional to the number of channels)
 
@@ -30,12 +30,11 @@ N_samples = int(interface.N_frames)
 domain = interface.domain
 attenuation = interface.attenuation
 coupling = interface.coupling
-num_channels=interface.num_channels
+num_channels = interface.num_channels
 
 data_to_send=Serialsetup.convertdata(attenuation,coupling,num_channels)
-numbertosend=Serialsetup.makecheckbyte(num_channels)
-# serial.write(numbertosend)
-# serial.write(data_to_send)
+print(data_to_send)
+arduino.write(data_to_send)
 #add the above back later when the PC needs to configure the arduino
 
 print("Number of Samples to take: " + str(N_samples),"\n Domain in use: " + str(domain), "\n Channel Attenuations: " + str(attenuation), "\n Channel Couplings: " + str(coupling))

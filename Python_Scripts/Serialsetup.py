@@ -15,10 +15,10 @@ def setup():
     for i in range(len(devices)):
         if ((devices[i].description)[0:11]=='Arduino Uno'):
             index=i
-    arduino = serial.Serial(devices[index].device, 115200, stopbits=1)
+    arduino = serial.Serial(devices[index].device, 1000000, stopbits=1)
 
-def convertdata(att,cpl,num_ch):
-    numbits=num_ch*2   #calculate the number of bits we'll need to send
+def convertdata(att,cpl,num_ch): 
+    numbits=num_ch*2   #calculate the number of bits we'll need to send, though the arduino code would need to be modified if this number isnt 8
     maxbits=numbits
     if (numbits%8!=0): #as theres only 3 cases well just use nested if statements
         if (numbits%4==0):
@@ -27,7 +27,7 @@ def convertdata(att,cpl,num_ch):
             numbits+=6
         else:
             numbits+=2
-    num=[0]*numbits #create a list into which each parameter will be placed. the order of this will be channelwise ie index0=ch1attenuation index1=ch1coupling index2=ch2attenuation etc
+    num=[0]*numbits #create a list into which each parameter will be placed. the order of this will be channelwise ie index0=ch0attenuation index1=ch0coupling index2=ch1attenuation etc
     numbytes=int(numbits//8) #convert from a number of bits to a number of bytes
     for i in range (maxbits):
         if (i & 1) == 0:
@@ -46,7 +46,7 @@ def convertdata(att,cpl,num_ch):
     sendbyte=number.to_bytes(numbytes,'little',signed = False)
     return sendbyte
 
-def makecheckbyte(num_ch):
-    numbytestosend=math.ceil(num_ch/4)*8
+def makecheckbyte(num_ch):#function now redundant due to changes in the arduino code.
+    numbytestosend=math.ceil(num_ch/4)
     sendbyte=numbytestosend.to_bytes(1,'little',signed = False)
     return sendbyte

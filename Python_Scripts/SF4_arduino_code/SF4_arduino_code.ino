@@ -5,6 +5,8 @@ SPISettings settings(2000000, MSBFIRST, SPI_MODE0);
 const int CS = 10;
 const int CH1_att = 5;
 const int CH1_coup = 4;
+const int CH2_att = 2;
+const int CH2_coup = 3;
 
 //Configuration:
 //Byte 1: 0 0 0 0 1 SGL/DIFF D2 D1
@@ -19,46 +21,49 @@ uint8_t read_3 = 0b00000000;
 
 const uint8_t SYNC = 0xAB;
 uint8_t pkt[5] = {SYNC, 0, 0, 0, 0};
-
-float reading_1;
-float reading_2;
+uint8_t cmd;
 
 void setup() {
-  Serial.begin(115200,SERIAL_8N1);//change back to 1Mb later
+  Serial.begin(1000000);
+  pinMode(CS, OUTPUT);
+  pinMode(CH1_att, OUTPUT);
+  pinMode(CH1_coup, OUTPUT);
+  pinMode(CH2_att, OUTPUT);
+  pinMode(CH2_coup, OUTPUT);
+  digitalWrite(CS, HIGH);
   SPI.begin();
 }
 
 void loop() {
+  //assign coupling and attenuation settings
+  if (Serial.available()) {
+    //instructions received from the pc in the form of one byte: {0, 0, 0, 0, CH2_coup, CH2_att, CH1_coup, CH1_att}
+    cmd = Serial.read();
+    digitalWrite(CH1_att, (cmd >> 0) & 1);
+    digitalWrite(CH1_coup, (cmd >> 1) & 1);
+    digitalWrite(CH2_att, (cmd >> 2) & 1);
+    digitalWrite(CH2_coup, (cmd >> 3) & 1);
+    configured = true;
+  }
   read_ADC();
   Serial.write(pkt,5);
-  /*
-  int16_t reading = (int16_t)pkt[1]<<8 | (int16_t)pkt[2];
-  Serial.println(reading);
-  reading = (int16_t)pkt[3]<<8 | (int16_t)pkt[4];
-  Serial.println(reading);
-  //delay(10);*/
 }
 
 void read_ADC() {
   SPI.beginTransaction(settings);
-  digitalWrite(CS, LOW);
 
+  //first channel
+  digitalWrite(CS, LOW);
   SPI.transfer(read_1_CH0);
   pkt[1] = SPI.transfer(read_2);
   pkt[2] = SPI.transfer(read_3);
-  // pkt[1] = 0x02;
-  // pkt[2] = 0xAC; //(684)
-
   digitalWrite(CS,HIGH);
+
   //second channel
   digitalWrite(CS,LOW);
-
   SPI.transfer(read_1_CH1);
   pkt[3] = SPI.transfer(read_2);
   pkt[4] = SPI.transfer(read_3);
-  // pkt[3] = 0x37;
-  // pkt[4] = 0x06;//reminder, we are using signed inputs, 12 bits of the value and 13 bits of sign, acocunt for this in python code (-2298)
-
   digitalWrite(CS,HIGH);
 
   SPI.endTransaction();
@@ -73,3 +78,5 @@ void read_ADC() {
     pkt[3] = pkt[3] | 0xE0;
   }
 }
+
+

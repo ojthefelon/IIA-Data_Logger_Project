@@ -5,7 +5,7 @@ from functools import partial
 
 #this code is designed to be easily scalable in terms of number of channels hence uses loops instead of repeating code even though we only use two channels so that by changing num_channels the code could be easily scaled.
 
-num_channels = 2
+num_channels = 2#setting this greater than 4 may cause issues in the arduino so beware
 domain = 'time' #domain always defaults to time
 attenuation = ["1x"]*num_channels #store as a tuple of two (number of channels) values
 coupling = ["DC"]*num_channels #store as a tuple of two (number of channels) values
