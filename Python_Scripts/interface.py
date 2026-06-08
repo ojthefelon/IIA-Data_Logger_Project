@@ -8,7 +8,7 @@ from functools import partial
 num_channels = 2#setting this greater than 4 may cause issues in the arduino so beware
 domain = 'time' #domain always defaults to time
 attenuation = ["1x"]*num_channels #store as a tuple of two (number of channels) values
-coupling = ["DC"]*num_channels #store as a tuple of two (number of channels) values
+coupling = ["AC"]*num_channels #store as a tuple of two (number of channels) values
 N_frames = 0 #domian and number of samples/frames doesnt not need to be sent to the arduino
 #labels which will be modified must be declared here as they must be global to all functions
 domain_label = 0
@@ -25,6 +25,8 @@ def switch_domain():
     global domain_label
     if (domain == 'time'):
         domain = 'frequency' 
+    elif (domain == 'frequency'):
+        domain = 'cont time'
     else:
         domain = 'time'
     domain_label.config(text = "Current Domain: " + domain)
@@ -74,7 +76,7 @@ def make():
     global UI
     
     UI.title("Oscilloscope")
-    UI.geometry("400x500")
+    UI.geometry("500x600")
     # add title
 
     title = tk.Label(UI, text= "Oscilloscope Interface")
@@ -98,7 +100,7 @@ def make():
         attenuation_btns[i].pack()
 
     for i in range(num_channels):
-        coupling_labels[i] = tk.Label(UI, text = "Channel " + str(i+1) + " coupling, currently DC", font=("Arial",10) )
+        coupling_labels[i] = tk.Label(UI, text = "Channel " + str(i+1) + " coupling, currently AC", font=("Arial",10) )
         coupling_labels[i].pack()
         coupling_btns[i] = tk.Button(UI, text="Change Coupling", font=("Arial", 10), command = partial(switch_coupling, i))
         coupling_btns[i].pack()
@@ -108,6 +110,12 @@ def make():
     Frames_label = tk.Label(UI, text= "Set number of samples")
     Frames_label.pack()
     Frames_entry.pack()   
+    note = tk.Label(UI, text = 'Please note, if using DC mode then attenuation will automatically be set to 0.25x')
+    note.pack()
+
+    # dual_channel_label = tk.Label(UI, text="Tick box below for dual channel")
+    # dual_channel_label.pack()
+    #var=tk.BooleanVar() deal with single channel later
 
 
     Kill_button = tk.Button(UI, text= "Begin taking samples", command = close_window)

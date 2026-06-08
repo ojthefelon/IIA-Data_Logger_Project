@@ -19,8 +19,9 @@ uint8_t read_1_CH1 = 0b00001001;
 uint8_t read_2 = 0b00000000;
 uint8_t read_3 = 0b00000000;
 
-const uint8_t SYNC = 0xAB;
-uint8_t pkt[5] = {SYNC, 0, 0, 0, 0};
+const uint8_t SYNC1 = 0xAB;
+const uint8_t SYNC2 = 0x57;
+uint8_t pkt[6] = {SYNC1, 0, 0, 0, 0, SYNC2};
 uint8_t cmd;
 
 void setup() {
@@ -31,6 +32,10 @@ void setup() {
   pinMode(CH2_att, OUTPUT);
   pinMode(CH2_coup, OUTPUT);
   digitalWrite(CS, HIGH);
+  digitalWrite(CH1_att, HIGH);
+  digitalWrite(CH1_coup,LOW); //Low = AC coupling
+  digitalWrite(CH2_att,HIGH);
+  digitalWrite(CH2_coup,LOW);
   SPI.begin();
 }
 
@@ -43,10 +48,10 @@ void loop() {
     digitalWrite(CH1_coup, (cmd >> 1) & 1);
     digitalWrite(CH2_att, (cmd >> 2) & 1);
     digitalWrite(CH2_coup, (cmd >> 3) & 1);
-    configured = true;
+    Serial.flush();
   }
   read_ADC();
-  Serial.write(pkt,5);
+  Serial.write(pkt,6);
 }
 
 void read_ADC() {
