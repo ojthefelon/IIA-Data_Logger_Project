@@ -20,9 +20,11 @@ uint8_t read_2 = 0b00000000;
 uint8_t read_3 = 0b00000000;
 
 const uint8_t SYNC1 = 0xAB;
-const uint8_t SYNC2 = 0x57;
-uint8_t pkt[6] = {SYNC1, 0, 0, 0, 0, SYNC2};
+const uint8_t SYNC2 = 0x28;//made redundant, did not particularly help with error rate
+const uint8_t SYNC3 = 0x57;
+uint8_t pkt[6] = {SYNC1, 0, 0, 0, 0, SYNC3};
 uint8_t cmd;
+bool configured = false;
 
 void setup() {
   Serial.begin(1000000);
@@ -41,17 +43,23 @@ void setup() {
 
 void loop() {
   //assign coupling and attenuation settings
-  if (Serial.available()) {
-    //instructions received from the pc in the form of one byte: {0, 0, 0, 0, CH2_coup, CH2_att, CH1_coup, CH1_att}
-    cmd = Serial.read();
-    digitalWrite(CH1_att, (cmd >> 0) & 1);
-    digitalWrite(CH1_coup, (cmd >> 1) & 1);
-    digitalWrite(CH2_att, (cmd >> 2) & 1);
-    digitalWrite(CH2_coup, (cmd >> 3) & 1);
-    Serial.flush();
+  if (!configured){
+    if (Serial.available()) {
+      //instructions received from the pc in the form of one byte: {0, 0, 0, 0, CH2_coup, CH2_att, CH1_coup, CH1_att}
+      cmd = Serial.read();
+      Serial.write(cmd);
+      digitalWrite(CH1_att, (cmd >> 0) & 1);
+      digitalWrite(CH1_coup, (cmd >> 1) & 1);
+      digitalWrite(CH2_att, (cmd >> 2) & 1);
+      digitalWrite(CH2_coup, (cmd >> 3) & 1);
+      Serial.flush();
+      configured = true;
+    }
   }
-  read_ADC();
-  Serial.write(pkt,6);
+  else{
+    read_ADC();
+    Serial.write(pkt,6);
+  }
 }
 
 void read_ADC() {
